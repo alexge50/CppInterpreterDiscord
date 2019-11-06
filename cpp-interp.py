@@ -30,12 +30,9 @@ async def eval(ctx, *, args):
 
 @bot.command()
 async def eval_block(ctx, *, args):
-    code_pattern = re.compile(r'```(cpp)?[\s\S]*```')
+    code_pattern = re.compile(r'```(cpp)?(?P<code>[\s\S]*)```')
     cli_arguments = code_pattern.sub('', args).strip()
-    code_block = code_pattern.search(args).group()
-
-    code_block = code_block[6:] if code_block[:6] == '```cpp' else code_block[3:]
-    code_block = code_block[:-3]
+    code_block = code_pattern.search(args)['code']
 
     stdout, stderr, return_code = interpreters.cling(code_block, cli_arguments.split(' '))
 
