@@ -15,7 +15,15 @@ async def on_ready():
 
 @bot.command()
 async def eval(ctx, *, args):
-    stdout, stderr, return_code = interpreters.cling(args, ['-std=c++17'])
+    code_pattern = re.compile(r'`(?P<code>[\S \t]*)`')
+    argument_pattern = re.compile(r'-([-a-zA-Z]+)')
+
+    code = code_pattern.search(args)['code']
+    arguments = code_pattern.sub(args, '')
+
+    arguments = [x[0] for x in argument_pattern.findall(arguments)]
+
+    stdout, stderr, return_code = interpreters.cling(code, arguments)
 
     message = f'Return Code: {return_code}\n'
 
