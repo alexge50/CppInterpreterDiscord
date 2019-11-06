@@ -11,7 +11,6 @@ ExecutedProgram = namedtuple('ExecutedProgram', 'stdout stderr returncode')
 def run_process(config, command, stdin, args) -> ([LogEntry], ExecutedProgram):
     nsjail_log = NamedTemporaryFile()
 
-    print(nsjail_log.name)
     jail_command = [
         'nsjail',
         '--config', config,
