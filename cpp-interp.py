@@ -68,6 +68,4 @@ async def eval_block(ctx, *, args):
     await ctx.send(message)
 
 
-with open('token', 'r') as f:
-    token = f.read()
-bot.run(token.strip())
+bot.run(config['token'])
