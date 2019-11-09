@@ -1,5 +1,6 @@
 import re
 import argparse
+import logging
 
 import discord
 from discord.ext import commands
@@ -20,10 +21,17 @@ interpreters.nsjail_bin = config['nsjail']
 interpreters.cling_bin = config['cling']
 interpreters.cling_dir = config['cling-dir']
 
+logging.basicConfig(
+    filename=config['log-file'],
+    filemode='w',
+    level=logging.DEBUG,
+    format='[%(process)d; %(levelname)s] %(asctime)s - %(message)s'
+)
+
 
 @bot.event
 async def on_ready():
-    print('running as {0.user}'.format(bot))
+    logging.info('running as {0.user}'.format(bot))
 
 
 @bot.command()
@@ -36,7 +44,17 @@ async def eval(ctx, *, args):
 
     arguments = [x[0] for x in argument_pattern.findall(arguments)]
 
-    stdout, stderr, return_code = interpreters.cling(code, arguments)
+    (stdout, stderr, return_code), log_entries = interpreters.cling(code, arguments)
+
+
+
+    log_message = \
+        f'({ctx.message.author.name}#{ctx.message.author.discriminator} - {ctx.message.author.id})args: {args}\n'
+    log_message += '\n'.join([
+        str((x.level, x.date.strftime('"%Y-%m-%d, %H:%M:%S'), x.function, x.message)) for x in log_entries
+    ])
+
+    logging.info(log_message)
 
     message = f'Return Code: {return_code}\n'
 
@@ -55,7 +73,14 @@ async def eval_block(ctx, *, args):
     cli_arguments = code_pattern.sub('', args).strip()
     code_block = code_pattern.search(args)['code']
 
-    stdout, stderr, return_code = interpreters.cling(code_block, cli_arguments.split(' '))
+    (stdout, stderr, return_code), log_entries = interpreters.cling(code_block, cli_arguments.split(' '))
+
+    log_message = f'args: {args}\n'
+    log_message += '\n'.join([
+        str((x.level, x.date.strftime('"%Y-%m-%d, %H:%M:%S'), x.function, x.message)) for x in log_entries
+    ])
+
+    logging.info(log_message)
 
     message = f'Return Code: {return_code}\n'
 
