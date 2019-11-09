@@ -1,11 +1,24 @@
 import re
+import argparse
 
 import discord
 from discord.ext import commands
 
 import interpreters
 
-bot = commands.Bot(command_prefix='>')
+parser = argparse.ArgumentParser(description='C++ Interpreter Python Bot')
+parser.add_argument('config', type=str, help='config file')
+
+args = parser.parse_args()
+
+with open(args.config) as f:
+    import json
+    config = json.load(f)
+
+bot = commands.Bot(command_prefix=config['prefix'])
+interpreters.nsjail_bin = config['nsjail']
+interpreters.cling_bin = config['cling']
+interpreters.cling_dir = config['cling-dir']
 
 
 @bot.event

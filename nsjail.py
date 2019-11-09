@@ -8,7 +8,7 @@ LogEntry = namedtuple('LogEntry', 'level date function message')
 ExecutedProgram = namedtuple('ExecutedProgram', 'stdout stderr returncode')
 
 
-def run_process(config, command, stdin, args) -> ([LogEntry], ExecutedProgram):
+def run_process(config, ns_jail_args, command, stdin, args) -> ([LogEntry], ExecutedProgram):
     nsjail_log = NamedTemporaryFile()
 
     jail_command = [
@@ -16,6 +16,7 @@ def run_process(config, command, stdin, args) -> ([LogEntry], ExecutedProgram):
         '--config', config,
         '--log', nsjail_log.name,
         '--verbose',
+        *ns_jail_args,
         '--', command, *args
     ]
     result = subprocess.Popen(jail_command,

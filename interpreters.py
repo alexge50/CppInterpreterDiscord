@@ -3,10 +3,15 @@ from collections import namedtuple
 
 InterpreterOutput = namedtuple('InterpreterOutput', 'stdout stderr return_code')
 
+nsjail_bin = None
+cling_bin = None
+cling_dir = None
+
 
 def cling(code, args) -> InterpreterOutput:
     log_entries, executed_program = nsjail.run_process(
         'interpreter-jail.cfg',
+        [f'-R{cling_dir}'],
         '/opt/cling/bin/cling',
         code,
         args)
